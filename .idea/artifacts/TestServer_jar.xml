@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="TestServer:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/TestServer_jar</output-path>
+    <root id="archive" name="TestServer.jar">
+      <element id="module-output" name="TestServer" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/nanohttpd/nanohttpd/2.3.1/nanohttpd-2.3.1.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
