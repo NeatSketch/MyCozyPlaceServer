@@ -22,6 +22,13 @@ public class Player extends WorldMapEntity {
 
     boolean spawned = false;
 
+    String accessoryHead;
+    String accessoryNeck;
+    String accessoryButt;
+    String accessoryHead2;
+    String accessoryEyes;
+    String accessoryMouth;
+
     Player(String username) {
         this.username = username;
         this.lastUpdateTime = new Date();

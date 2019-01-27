@@ -63,20 +63,35 @@ public class App extends NanoHTTPD  {
                         return createOkResponse(loginResponse);
                     }
                 } else if (requestJSON.getString("action").equals("update")) {
-                    //JSONObject payload = requestJSON.getJSONObject("payload");
+                    boolean updProps = requestJSON.getBoolean("updProps");
                     String username = requestJSON.getString("username");
                     String authToken = requestJSON.getString("authToken");
                     float positionX = requestJSON.getFloat("positionX");
                     float positionZ = requestJSON.getFloat("positionZ");
                     float velocityX = requestJSON.getFloat("velocityX");
                     float velocityZ = requestJSON.getFloat("velocityZ");
+                    String accessoryHead = requestJSON.getString("accHead");
+                    String accessoryNeck = requestJSON.getString("accNeck");
+                    String accessoryButt = requestJSON.getString("accButt");
+                    String accessoryHead2 = requestJSON.getString("accHead2");
+                    String accessoryEyes = requestJSON.getString("accEyes");
+                    String accessoryMouth = requestJSON.getString("accMouth");
+
+                    System.out.println(accessoryHead);
 
                     Player player = WorldMap.getPlayer(username);
 
                     if ((player == null) || !authToken.equals(player.authToken) || !player.isOnline()) {
                         return createErrorResponse(2, "Auth error!");
                     } else {
-                        WorldMap.updatePlayer(player, positionX, positionZ, velocityX, velocityZ);
+                        if (updProps) {
+                            WorldMap.updatePlayer(
+                                    player,
+                                    positionX, positionZ,
+                                    velocityX, velocityZ,
+                                    accessoryHead, accessoryNeck, accessoryButt,
+                                    accessoryHead2, accessoryEyes, accessoryMouth);
+                        }
 
                         AbstractMap.SimpleImmutableEntry<Integer, Integer> chunk = new AbstractMap.SimpleImmutableEntry<>(player.chunkX, player.chunkZ);
 
@@ -109,8 +124,31 @@ public class App extends NanoHTTPD  {
                                         entityObject.put("posZ", currentPlayer.positionZ);
                                         entityObject.put("velX", currentPlayer.velocityX);
                                         entityObject.put("velZ", currentPlayer.velocityZ);
+                                        entityObject.put("accHead", currentPlayer.accessoryHead);
+                                        entityObject.put("accNeck", currentPlayer.accessoryNeck);
+                                        entityObject.put("accButt", currentPlayer.accessoryButt);
+                                        entityObject.put("accHead2", currentPlayer.accessoryHead2);
+                                        entityObject.put("accEyes", currentPlayer.accessoryEyes);
+                                        entityObject.put("accMouth", currentPlayer.accessoryMouth);
                                         entitiesInChunk.put(entityObject);
                                     }
+                                } else if (entity instanceof Block) {
+                                    Block currentBlock = (Block)entity;
+                                    entityObject.put("id", String.format("b:%d:%d", currentBlock.positionX, currentBlock.positionZ));
+                                    entityObject.put("type", 1);
+                                    entityObject.put("blockType", currentBlock.blockType);
+                                    entityObject.put("posX", currentBlock.positionX);
+                                    entityObject.put("posZ", currentBlock.positionZ);
+                                    entitiesInChunk.put(entityObject);
+                                } else if (entity instanceof Furniture) {
+                                    Furniture currentFurniture = (Furniture)entity;
+                                    entityObject.put("id", String.format("f:%d:%d", currentFurniture.positionX, currentFurniture.positionZ));
+                                    entityObject.put("type", 2);
+                                    entityObject.put("furnitureType", currentFurniture.furnitureType);
+                                    entityObject.put("rotation", currentFurniture.rotation);
+                                    entityObject.put("posX", currentFurniture.positionX);
+                                    entityObject.put("posZ", currentFurniture.positionZ);
+                                    entitiesInChunk.put(entityObject);
                                 }
                             }
                             chunkObject.put("entities", entitiesInChunk);
@@ -124,8 +162,50 @@ public class App extends NanoHTTPD  {
 
                         layers.put(layer);
 
+                        updateResponse.put("accHead", player.accessoryHead);
+                        updateResponse.put("accNeck", player.accessoryNeck);
+                        updateResponse.put("accButt", player.accessoryButt);
+                        updateResponse.put("accHead2", player.accessoryHead2);
+                        updateResponse.put("accEyes", player.accessoryEyes);
+                        updateResponse.put("accMouth", player.accessoryMouth);
+                        updateResponse.put("posX", player.positionX);
+                        updateResponse.put("posZ", player.positionZ);
                         updateResponse.put("layers", layers);
+
                         return createOkResponse(updateResponse);
+                    }
+                } else if (requestJSON.getString("action").equals("setBlock")) {
+                    String username = requestJSON.getString("username");
+                    String authToken = requestJSON.getString("authToken");
+                    int positionX = requestJSON.getInt("positionX");
+                    int positionZ = requestJSON.getInt("positionZ");
+                    int blockType = requestJSON.getInt("blockType");
+
+                    Player player = WorldMap.getPlayer(username);
+
+                    if ((player == null) || !authToken.equals(player.authToken) || !player.isOnline()) {
+                        return createErrorResponse(2, "Auth error!");
+                    } else {
+                        WorldMap.setBlock(positionX, positionZ, blockType);
+                        //JSONObject okResponse = new JSONObject();
+                        return createOkResponse(null /*okResponse*/);
+                    }
+                } else if (requestJSON.getString("action").equals("setFurniture")) {
+                    String username = requestJSON.getString("username");
+                    String authToken = requestJSON.getString("authToken");
+                    int positionX = requestJSON.getInt("positionX");
+                    int positionZ = requestJSON.getInt("positionZ");
+                    int furnitureType = requestJSON.getInt("furnitureType");
+                    int rotation = requestJSON.getInt("rotation");
+
+                    Player player = WorldMap.getPlayer(username);
+
+                    if ((player == null) || !authToken.equals(player.authToken) || !player.isOnline()) {
+                        return createErrorResponse(2, "Auth error!");
+                    } else {
+                        WorldMap.setFurniture(positionX, positionZ, furnitureType, rotation);
+                        //JSONObject okResponse = new JSONObject();
+                        return createOkResponse(null /*okResponse*/);
                     }
                 }
 
